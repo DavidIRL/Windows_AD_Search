@@ -21,6 +21,10 @@ class Group:
 
 
 def get_user_in_group(user, group):
+    if (user is None or group is None):
+        raise TypeError("inputs cannot be None")
+    if (len(user) == 0 or len(group) == 0):
+        raise TypeError("inputs cannot be empty")
     users = group.get_users() # current group.users set
     if user in users:
         return True
