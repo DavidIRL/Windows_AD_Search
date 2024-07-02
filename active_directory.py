@@ -1,13 +1,21 @@
 class Group:
-    def __init__(self, name):
+    def __init__(self, name="default"):
         self._name = name
         self.groups = set()
         self.users = set()
 
     def add_group(self, group):
+        if group is None:
+            return TypeError("Cannot add None elements to AD groups")
+        if len(str(group)) == 0:
+            return TypeError("Group name cannot be empty")
         self.groups.add(group)
 
     def add_user(self, user):
+        if user is None:
+            return TypeError("Cannot add None element as user")
+        if len(str(user)) == 0:
+            return TypeError("User name cannot be empty")
         self.users.add(user)
 
     def get_groups(self):
@@ -17,38 +25,39 @@ class Group:
         return self.users
 
     def get_name(self):
-        return self.name
+        return self._name
 
 
 def get_user_in_group(user, group):
     if (user is None or group is None):
-        raise TypeError("inputs cannot be None")
-    if (len(user) == 0 or len(group) == 0):
-        raise TypeError("inputs cannot be empty")
+        return TypeError("None elements cannot exist in AD groups")
+    if (len(user) == 0 or len(str(group)) == 0):
+        return TypeError("Blank elements cannot be exist in AD groups")
     users = group.get_users() # current group.users set
     if user in users:
         return True
+
     groups = group.get_groups()
     for current_group in groups:
         return get_user_in_group(user, current_group)
 
     return False
 
-
 if __name__ == '__main__':
-    parent = Group("parent")                # {'parent' : None}
-    child = Group("child")                  # {'child' : None}
-    sub_child = Group("subchild")           # {'subchild' : None}
+    p_ou = Group("parent")
+    c_ou = Group("child")
+    sc_ou = Group("subchild")
+    gc_ou = Group("grandchild")
 
-    sub_child_user = "sub_child_user"
-    sub_child.add_user(sub_child_user)      # {'subchild' : 'sub_child_user'}
+    sc_ou.add_group(gc_ou)
+    c_ou.add_group(sc_ou)
+    p_ou.add_group(c_ou)
 
-    child.add_group(sub_child)              
-    parent.add_group(child)
+    sc_ou.add_user("sebastian")
+    gc_ou.add_user("gustaf")
+    p_ou.add_user("priscilla")
+    c_ou.add_user("castiel")
 
-    #          {'parent' : None}
-    #               ^-{'child' : None}
-    #                     ^-{'subchild' : 'sub_child_user'}
-
-    print(is_user_in_group(sub_child_user, child))  # should return True
-    print(is_user_in_group(sub_child_user, parent)) # should return True
+    print(f"Is Sebastian a valid user of the child OU?\n")
+    print(f"...")
+    print(get_user_in_group("sebastian", c_ou))
